@@ -88,7 +88,13 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         # temp=image[y:y+h,x:x+w,:]
         # cv2.imwrite('%s_%d.jpg'%(os.path.basename(filename).split('.')[0],i),temp)
     if i == 0:
-        print("沒找到")
+        img1 = oimage[0:rows, 0:cols ]
+        img2 = saveImg[0:rows, 0:cols ]
+        mask = filename[1]
+        mask_inv =  cv2.bitwise_not(mask)
+        img1_bg = cv2.bitwise_and(img1,img1,mask = mask)
+        img2_fg = cv2.bitwise_and(img2,img2,mask = mask_inv)
+        saveImg = cv2.add(img1_bg,img2_fg)
         
     cv2.imshow("image", saveImg)
     

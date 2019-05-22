@@ -4,11 +4,7 @@ import cv2
 import os.path
 import math
 
-
-# img=cv2.imread('1.jpg',cv2.IMREAD_UNCHANGED)
-# cv2.namedWindow('img',cv2.WINDOW_AUTOSIZE)
-# cv2.imshow('img',img)
-# cv2.waitKey(0)
+# 填洞方法
 def fillHole(im_in):
     im_floodfill = im_in.copy()
     # Mask used to flood filling.
@@ -34,10 +30,8 @@ def fillHole(im_in):
 
     return im_out
 
-
+# 找人臉加效果框
 def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
-    # if not os.path.isfile(cascade_file):
-    #     raise RuntimeError("%s: not found" % cascade_file)
     image = filename[0]
     cascade = cv2.CascadeClassifier(cascade_file)
     # image = cv2.imread(filename)
@@ -45,6 +39,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
     rows,cols,channels = image.shape
+    #分級器
     faces = cascade.detectMultiScale(gray,
                                      # detector options
                                      scaleFactor = 1.1,
@@ -53,6 +48,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
     i=0
     oimage = image.copy()
     
+    #特效框
     cover =  cv2.resize(cover, (cols ,rows), interpolation=cv2.INTER_CUBIC)
     cover = cv2.cvtColor(cover,cv2.COLOR_BGR2GRAY)
     ret, mask = cv2.threshold(cover, 50, 255, cv2.THRESH_BINARY)
@@ -65,6 +61,8 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
     
     img1_bg = cv2.bitwise_and(img,img,mask = mask)
     saveImg = img1_bg.copy()
+
+    #防止人臉覆蓋
     for (x, y, w, h) in faces:
         i+=1
         new = cv2.rectangle(oimage.copy(), (0 , 0), (cols , rows), (0, 0, 0), -1)
@@ -84,9 +82,12 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         img1_bg = cv2.bitwise_and(img1,img1,mask = mask)
         img2_fg = cv2.bitwise_and(img2,img2,mask = mask_inv)
         saveImg = cv2.add(img1_bg,img2_fg)
+        # 用不到功能
         # cv2.rectangle(image, (x , y), (x + w , y + h), (255, 255, 255), 2)
         # temp=image[y:y+h,x:x+w,:]
         # cv2.imwrite('%s_%d.jpg'%(os.path.basename(filename).split('.')[0],i),temp)
+    
+    #防止方法人臉覆蓋
     if i == 0:
         img1 = oimage[0:rows, 0:cols ]
         img2 = saveImg[0:rows, 0:cols ]
@@ -97,34 +98,27 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         saveImg = cv2.add(img1_bg,img2_fg)
         
     cv2.imshow("image", saveImg)
-    
-    # dst = cv2.addWeighted(img2_fg, 1 ,img1_bg, 1, 0)
-    # cv2.imshow("FaceDetect", dst)
-    
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    #寫入
     #cv2.imwrite("out.png", image)
 
 
 def profile(filename):
+    if not os.path.isfile(cascade_file):
+        raise RuntimeError("%s: not found" % cascade_file)
+
     image = cv2.imread(filename)
     cover = cv2.imread('./material/gogo.png')
 
-    #image = cv2.imread('14.png')
-    #cv2.imshow( "image",image)
-
+  
     #轉換灰度並去噪聲
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # gray = cv2.equalizeHist(gray) //顏色均質化
     blurred = cv2.GaussianBlur( gray ,  ( 9 ,  9 ) , 0 )
     blurred = cv2.GaussianBlur( blurred ,  ( 9 ,  9 ) , 0 )
-    
-    # kernels = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
-    # Sharpen = cv2.filter2D(blurred, -1, kernels)
-    
-    # blurred = cv2.GaussianBlur( blurred ,  ( 9 ,  9 ) , 0 )
-    #cv2.imshow( "thresh",blurred)
+  
     # 提取圖像的梯度
     gradX = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 1 , dy = 0 ) 
     gradY = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 0 , dy = 1 )
@@ -179,7 +173,7 @@ def profile(filename):
     img2_fg = cv2.bitwise_and(bcg,bcg,mask = mask_inv)
     # img2_fg = cv2.dilate ( img2_fg , None , iterations = 3 ) 
     
-
+    # 特效文字
     
     cover = cv2.cvtColor(cover,cv2.COLOR_BGR2GRAY)
     cover =  cv2.resize(cover, (cols ,rows), interpolation=cv2.INTER_CUBIC)
@@ -208,22 +202,16 @@ def profile(filename):
     remask = cv2.bitwise_xor(maski,mask_inv)
     remasks = cv2.bitwise_not(remask)
     img2 = cv2.bitwise_and(tcg,tcg,mask = remask)
-    # cv2.imshow('remask1',img1)
-    # cv2.imshow('remask2',img2)
-    
-    
+   
     dst = cv2.addWeighted(img1, 1 ,img1_bg, 1, 0)
     dst = cv2.addWeighted(dst, 1 ,img2, 1, 0)
-    # cv2.imshow('dst',mask)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+   
     
     return [dst,mask] 
    
 
 def main():
-    # profile('15.jpg')
-    detect(profile('17.jpg'))
+    detect(profile('2.jpg'))
     
  
 if __name__ == '__main__':

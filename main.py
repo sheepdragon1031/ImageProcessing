@@ -38,7 +38,7 @@ def fillHole(im_in):
 def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
     # if not os.path.isfile(cascade_file):
     #     raise RuntimeError("%s: not found" % cascade_file)
-    image = filename
+    image = filename[0]
     cascade = cv2.CascadeClassifier(cascade_file)
     # image = cv2.imread(filename)
     cover = cv2.imread('./material/comic.png')
@@ -71,7 +71,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         nx = math.floor(x + w * 0.5)
         ny = math.floor(y + h * 0.5)
         w = math.floor(w * 0.5)
-        h = math.floor(h * 0.5)
+        h = math.floor(h * 0.7)
         new = cv2.ellipse(new, (nx, ny), ( w, h), 0, 0, 360, (255, 255, 255), -1)
         
         new = cv2.cvtColor(new,cv2.COLOR_BGR2GRAY)
@@ -87,6 +87,9 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         # cv2.rectangle(image, (x , y), (x + w , y + h), (255, 255, 255), 2)
         # temp=image[y:y+h,x:x+w,:]
         # cv2.imwrite('%s_%d.jpg'%(os.path.basename(filename).split('.')[0],i),temp)
+    if i == 0:
+        print("沒找到")
+        
     cv2.imshow("image", saveImg)
     
     # dst = cv2.addWeighted(img2_fg, 1 ,img1_bg, 1, 0)
@@ -100,7 +103,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
 
 def profile(filename):
     image = cv2.imread(filename)
-    itext = cv2.imread('./material/gogo.png')
+    cover = cv2.imread('./material/gogo.png')
 
     #image = cv2.imread('14.png')
     #cv2.imshow( "image",image)
@@ -154,55 +157,67 @@ def profile(filename):
    
     mix = cv2.addWeighted(thresh,0.5,closed,0.5,0)
     MixMask = fillHole(mix)
-    # cv2.imshow( "fillHoleclosed",MixMask)
+    
     images = image.copy()
-    trows,tcols,tchannels = itext.shape
     rows,cols,channels = images.shape
     images = cv2.GaussianBlur ( images ,  ( 9 ,  9 ) , 0 )
     images = cv2.GaussianBlur ( images ,  ( 9 ,  9 ) , 0 )
     images = cv2.blur(images, (9, 9))
     img = image[0:rows, 0:cols ]
     bcg = images[0:rows, 0:cols ]
-    tcg =  itext[0: trows, 0:tcols]
     mask = MixMask
     mask_inv = cv2.bitwise_not(MixMask)
-    mask = cv2.erode ( mask , None , iterations = 3 ) 
-    # mask = cv2.GaussianBlur ( MixMask ,  ( 9 ,  9 ) , 0 )
+    # mask = cv2.erode ( mask , None , iterations = 3 ) 
     
-    # mask = cv2.GaussianBlur ( mask ,  ( 9 ,  9 ) , 0 )
-    # mask = cv2.erode ( mask , None , iterations = 2 )
-    new = cv2.rectangle(image.copy(), (0 , 0), (cols , rows), (0, 0, 0), -1)
-    nret, news = cv2.threshold(new, 10, 255, cv2.THRESH_BINARY)
-    
-    
-    itext = cv2.cvtColor(itext,cv2.COLOR_BGR2GRAY)
-    tret, text = cv2.threshold(itext, 10, 255, cv2.THRESH_BINARY)
-    news =  cv2.resize(news, (cols ,rows), interpolation=cv2.INTER_CUBIC)
-    # img = cv2.bitwise_or(news,text)
-    # img = cv2.addWeighted(text, 1 ,news, 1, 0)
-    # cv2.imshow('nret',img)
-    
-    # timg = cv2.bitwise_and(img,img,mask = text)
-    # cv2.imshow('img1_bg',timg)
     img1_bg = cv2.bitwise_and(img,img,mask = mask)
     img2_fg = cv2.bitwise_and(bcg,bcg,mask = mask_inv)
-    # cv2.imshow('img1_bg',img1_bg)
-    # cv2.imshow('img2_fg',img2_fg)
-    img2_fg = cv2.dilate ( img2_fg , None , iterations = 3 ) 
- 
+    # img2_fg = cv2.dilate ( img2_fg , None , iterations = 3 ) 
+    
+
+    
+    cover = cv2.cvtColor(cover,cv2.COLOR_BGR2GRAY)
+    cover =  cv2.resize(cover, (cols ,rows), interpolation=cv2.INTER_CUBIC)
+    rets, masks = cv2.threshold(cover, 50, 255, cv2.THRESH_BINARY)
+    mask_re = cv2.bitwise_not(masks)
+
+    
+
+    img = img2_fg[0:rows, 0:cols ]
+    
+
+    # 人像背景抽離
+    img2 = cv2.cvtColor(img2_fg.copy(),cv2.COLOR_BGR2GRAY)
+    reti, maski = cv2.threshold(img2, 10, 255, cv2.THRESH_BINARY)
+    mask_i = cv2.bitwise_not(maski)
+
+    maski = cv2.bitwise_and(masks,maski)
+    mask_i = cv2.bitwise_not(maski)
+
+
+    img1 = cv2.bitwise_and(img,img,mask = maski)
+    # 正確的
+
+    cgt = cv2.rectangle(image.copy(), (0 , 0), (cols , rows), (40, 40, 40), -1)
+    tcg = cgt[0:rows, 0:cols ]
+    remask = cv2.bitwise_xor(maski,mask_inv)
+    remasks = cv2.bitwise_not(remask)
+    img2 = cv2.bitwise_and(tcg,tcg,mask = remask)
+    # cv2.imshow('remask1',img1)
+    # cv2.imshow('remask2',img2)
     
     
-    dst = cv2.addWeighted(img2_fg, 1 ,img1_bg, 1, 0)
-    # dst = cv2.GaussianBlur ( dst ,  ( 9 ,  9 ) , 0 )
-   
-    
-    # cv2.imshow('IG',dst)
-    return dst
+    dst = cv2.addWeighted(img1, 1 ,img1_bg, 1, 0)
+    dst = cv2.addWeighted(dst, 1 ,img2, 1, 0)
+    # cv2.imshow('dst',mask)
     # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    return [dst,mask] 
+   
 
 def main():
-    
-    detect(profile('15.jpg'))
+    # profile('15.jpg')
+    detect(profile('17.jpg'))
     
  
 if __name__ == '__main__':

@@ -9,6 +9,8 @@ yapf = "*"
 [packages]
 opencv-python = "*"
 numpy = "*"
+jinja2 = "*"
+tornado = "*"
 
 [requires]
 python_version = "3.7"

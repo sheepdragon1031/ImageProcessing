@@ -3,8 +3,8 @@
 """
 import cv2
 from os import path
-from .fillHole import fillHole
-from .picture import MATERIAL
+from ImageProcessing.fillHole import fillHole
+from ImageProcessing.files import MATERIAL, imShow
 
 
 def profile(filename):

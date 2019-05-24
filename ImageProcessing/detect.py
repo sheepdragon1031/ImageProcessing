@@ -3,7 +3,7 @@
 """
 import cv2
 from math import floor
-from .picture import MATERIAL, CASCADE_FILE
+from ImageProcessing.files import MATERIAL, CASCADE_FILE, imShow
 
 
 def detect(filename):
@@ -75,7 +75,8 @@ def detect(filename):
         img2_fg = cv2.bitwise_and(img2, img2, mask=mask_inv)
         saveImg = cv2.add(img1_bg, img2_fg)
 
-    cv2.imshow("image", saveImg)
+    # cv2.imshow("image", saveImg)
+    imShow(saveImg)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()

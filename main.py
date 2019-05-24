@@ -44,7 +44,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
                                      # detector options
                                      scaleFactor = 1.1,
                                      minNeighbors = 7,
-                                     minSize = (50, 50))
+                                     minSize = (60, 60))
     i=0
     oimage = image.copy()
     
@@ -65,11 +65,11 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
     #防止人臉覆蓋
     for (x, y, w, h) in faces:
         i+=1
-        new = cv2.rectangle(oimage.copy(), (0 , 0), (cols , rows), (0, 0, 0), -1)
+        new = cv2.rectangle(saveImg, (0 , 0), (cols , rows), (0, 0, 0), -1)
         nx = math.floor(x + w * 0.5)
         ny = math.floor(y + h * 0.5)
         w = math.floor(w * 0.5)
-        h = math.floor(h * 0.7)
+        h = math.floor(h * 0.6)
         new = cv2.ellipse(new, (nx, ny), ( w, h), 0, 0, 360, (255, 255, 255), -1)
         
         new = cv2.cvtColor(new,cv2.COLOR_BGR2GRAY)
@@ -83,7 +83,8 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         img2_fg = cv2.bitwise_and(img2,img2,mask = mask_inv)
         saveImg = cv2.add(img1_bg,img2_fg)
         # 用不到功能
-        # cv2.rectangle(image, (x , y), (x + w , y + h), (255, 255, 255), 2)
+        # cv2.rectangle(saveImg, (x , y), (x + w , y + h), (255, 255, 255), 2)
+        # cv2.ellipse(saveImg, (nx, ny), ( w, h), 0, 0, 360, (255, 255, 255), 2)
         # temp=image[y:y+h,x:x+w,:]
         # cv2.imwrite('%s_%d.jpg'%(os.path.basename(filename).split('.')[0],i),temp)
     
@@ -106,8 +107,8 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
 
 
 def profile(filename):
-    if not os.path.isfile(cascade_file):
-        raise RuntimeError("%s: not found" % cascade_file)
+    if not os.path.isfile(filename):
+        raise RuntimeError("%s: not found" % filename)
 
     image = cv2.imread(filename)
     cover = cv2.imread('./material/gogo.png')
@@ -124,24 +125,25 @@ def profile(filename):
     gradY = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 0 , dy = 1 )
     gradient = cv2.subtract( gradX , gradY )
     gradient = cv2.convertScaleAbs( gradient )
-
+    
     blurred = cv2.GaussianBlur ( gradient ,  ( 9 ,  9 ) , 0 ) 
-    gradX = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 1 , dy = 0 ) 
-    gradY = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 0 , dy = 1 )
-    gradients = cv2.subtract( gradX , gradY ) 
-    gradients = cv2.convertScaleAbs( gradients )
 
+    # gradX = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 1 , dy = 0 ) 
+    # gradY = cv2.Sobel( blurred , ddepth = cv2 . CV_32F , dx = 0 , dy = 1 )
+    # gradients = cv2.subtract( gradX , gradY ) 
+    # gradients = cv2.convertScaleAbs( gradients )
 
-    blurred = cv2.GaussianBlur ( gradients ,  ( 9 ,  9 ) , 0 ) 
+    # blurred = cv2.GaussianBlur ( gradients ,  ( 9 ,  9 ) , 0 ) 
+    # cv2.imshow('closeds',blurred)
+
     # cv2.imshow( "gradients",blurred)
-    ( _ , thresh )  = cv2.threshold ( blurred ,  10 ,  255 , cv2.THRESH_BINARY )
+    ( _ , thresh )  = cv2.threshold ( blurred ,  40 ,  255 , cv2.THRESH_BINARY )
     thresh = cv2.GaussianBlur ( thresh ,  ( 9 ,  9 ) , 0 ) 
     
-
     # edges = cv2.Canny(blurred,200,200)
     closed = cv2.dilate ( thresh , None , iterations = 36 )
     closed = cv2.erode ( closed , None , iterations = 36 ) 
-    closed = cv2.dilate ( closed , None , iterations = 10 )
+    closed = cv2.dilate ( closed , None , iterations = 1 )
     # gray = cv2.equalizeHist(closed)
     
     for i in range(0,closed.shape[0]):
@@ -152,11 +154,10 @@ def profile(filename):
     
 
     kernel = cv2.getStructuringElement ( cv2 . MORPH_ELLIPSE ,  ( 40 ,  40 ) ) 
-    thresh = cv2.morphologyEx ( thresh , cv2 . MORPH_CLOSE , kernel )
     closed = cv2.morphologyEx ( closed , cv2 . MORPH_CLOSE , kernel )
-   
-    mix = cv2.addWeighted(thresh,0.5,closed,0.5,0)
-    MixMask = fillHole(mix)
+    # cv2.imshow('closeds',closed)
+    # mix = cv2.addWeighted(thresh,0.5,closed,0.5,0)
+    MixMask = fillHole(closed)
     
     images = image.copy()
     rows,cols,channels = images.shape
@@ -171,6 +172,7 @@ def profile(filename):
     
     img1_bg = cv2.bitwise_and(img,img,mask = mask)
     img2_fg = cv2.bitwise_and(bcg,bcg,mask = mask_inv)
+    
     # img2_fg = cv2.dilate ( img2_fg , None , iterations = 3 ) 
     
     # 特效文字
@@ -197,21 +199,23 @@ def profile(filename):
     img1 = cv2.bitwise_and(img,img,mask = maski)
     # 正確的
 
-    cgt = cv2.rectangle(image.copy(), (0 , 0), (cols , rows), (40, 40, 40), -1)
+    cgt = cv2.rectangle(image.copy(), (0 , 0), (cols , rows), ( 30, 30, 30), -1)
     tcg = cgt[0:rows, 0:cols ]
     remask = cv2.bitwise_xor(maski,mask_inv)
     remasks = cv2.bitwise_not(remask)
     img2 = cv2.bitwise_and(tcg,tcg,mask = remask)
-   
+    # img1_bg 人像
+    # img1 背景圖 ＋ 挖空文字
+    # img2 挖空文字
     dst = cv2.addWeighted(img1, 1 ,img1_bg, 1, 0)
     dst = cv2.addWeighted(dst, 1 ,img2, 1, 0)
-   
+    
     
     return [dst,mask] 
    
 
 def main():
-    detect(profile('2.jpg'))
+    detect(profile('21.jpg'))
     
  
 if __name__ == '__main__':

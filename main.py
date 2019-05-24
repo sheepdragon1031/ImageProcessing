@@ -81,6 +81,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         
         img1_bg = cv2.bitwise_and(img1,img1,mask = mask)
         img2_fg = cv2.bitwise_and(img2,img2,mask = mask_inv)
+
         saveImg = cv2.add(img1_bg,img2_fg)
         # 用不到功能
         # cv2.rectangle(saveImg, (x , y), (x + w , y + h), (255, 255, 255), 2)
@@ -89,6 +90,7 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         # cv2.imwrite('%s_%d.jpg'%(os.path.basename(filename).split('.')[0],i),temp)
     
     #防止方法人臉覆蓋
+    
     if i == 0:
         img1 = oimage[0:rows, 0:cols ]
         img2 = saveImg[0:rows, 0:cols ]
@@ -97,6 +99,8 @@ def detect(filename, cascade_file = "haarcascade_frontalface_default.xml"):
         img1_bg = cv2.bitwise_and(img1,img1,mask = mask)
         img2_fg = cv2.bitwise_and(img2,img2,mask = mask_inv)
         saveImg = cv2.add(img1_bg,img2_fg)
+        
+    
         
     cv2.imshow("image", saveImg)
 
@@ -137,28 +141,27 @@ def profile(filename):
     # cv2.imshow('closeds',blurred)
 
     # cv2.imshow( "gradients",blurred)
-    ( _ , thresh )  = cv2.threshold ( blurred ,  40 ,  255 , cv2.THRESH_BINARY )
+    ( _ , thresh )  = cv2.threshold ( blurred ,  30 ,  255 , cv2.THRESH_BINARY )
     thresh = cv2.GaussianBlur ( thresh ,  ( 9 ,  9 ) , 0 ) 
     
     # edges = cv2.Canny(blurred,200,200)
     closed = cv2.dilate ( thresh , None , iterations = 36 )
     closed = cv2.erode ( closed , None , iterations = 36 ) 
-    closed = cv2.dilate ( closed , None , iterations = 1 )
+    closed = cv2.dilate ( closed , None , iterations = 10 )
     # gray = cv2.equalizeHist(closed)
     
     for i in range(0,closed.shape[0]):
         for j in range(0,closed.shape[1]):
             pixel = closed.item(i, j)
-            if(pixel < 100):
+            if(pixel < 70):
                 closed.itemset((i, j),0)
     
 
     kernel = cv2.getStructuringElement ( cv2 . MORPH_ELLIPSE ,  ( 40 ,  40 ) ) 
     closed = cv2.morphologyEx ( closed , cv2 . MORPH_CLOSE , kernel )
-    # cv2.imshow('closeds',closed)
     # mix = cv2.addWeighted(thresh,0.5,closed,0.5,0)
     MixMask = fillHole(closed)
-    
+
     images = image.copy()
     rows,cols,channels = images.shape
     images = cv2.GaussianBlur ( images ,  ( 9 ,  9 ) , 0 )
@@ -172,50 +175,17 @@ def profile(filename):
     
     img1_bg = cv2.bitwise_and(img,img,mask = mask)
     img2_fg = cv2.bitwise_and(bcg,bcg,mask = mask_inv)
-    
+    dst = cv2.addWeighted(img1_bg, 1 ,img2_fg, 1, 0)
     # img2_fg = cv2.dilate ( img2_fg , None , iterations = 3 ) 
     
-    # 特效文字
     
-    cover = cv2.cvtColor(cover,cv2.COLOR_BGR2GRAY)
-    cover =  cv2.resize(cover, (cols ,rows), interpolation=cv2.INTER_CUBIC)
-    rets, masks = cv2.threshold(cover, 50, 255, cv2.THRESH_BINARY)
-    mask_re = cv2.bitwise_not(masks)
-
-    
-
-    img = img2_fg[0:rows, 0:cols ]
-    
-
-    # 人像背景抽離
-    img2 = cv2.cvtColor(img2_fg.copy(),cv2.COLOR_BGR2GRAY)
-    reti, maski = cv2.threshold(img2, 10, 255, cv2.THRESH_BINARY)
-    mask_i = cv2.bitwise_not(maski)
-
-    maski = cv2.bitwise_and(masks,maski)
-    mask_i = cv2.bitwise_not(maski)
-
-
-    img1 = cv2.bitwise_and(img,img,mask = maski)
-    # 正確的
-
-    cgt = cv2.rectangle(image.copy(), (0 , 0), (cols , rows), ( 30, 30, 30), -1)
-    tcg = cgt[0:rows, 0:cols ]
-    remask = cv2.bitwise_xor(maski,mask_inv)
-    remasks = cv2.bitwise_not(remask)
-    img2 = cv2.bitwise_and(tcg,tcg,mask = remask)
-    # img1_bg 人像
-    # img1 背景圖 ＋ 挖空文字
-    # img2 挖空文字
-    dst = cv2.addWeighted(img1, 1 ,img1_bg, 1, 0)
-    dst = cv2.addWeighted(dst, 1 ,img2, 1, 0)
     
     
     return [dst,mask] 
    
 
 def main():
-    detect(profile('21.jpg'))
+    detect(profile('1.jpg'))
     
  
 if __name__ == '__main__':

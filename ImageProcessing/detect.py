@@ -9,7 +9,7 @@ from ImageProcessing.files import MATERIAL, CASCADE_FILE, imShow
 def detect(filename):
     image = filename[0]
     cascade = cv2.CascadeClassifier(CASCADE_FILE['frontalface'])
-    # image = cv2.imread(filename)
+    gogo = cv2.imread(MATERIAL['gogogo'])
     cover = cv2.imread(MATERIAL['comic'])
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
@@ -29,13 +29,33 @@ def detect(filename):
     cover = cv2.cvtColor(cover, cv2.COLOR_BGR2GRAY)
     ret, mask = cv2.threshold(cover, 50, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
+    bcg = cv2.rectangle(image.copy(), (0, 0), (cols, rows), (20, 20, 20), -1) #顏色調整
 
     img = image[0:rows, 0:cols]
-    bcg = cover[0:rows, 0:cols]
+    bcg = bcg[0:rows, 0:cols]
 
     img1_bg = cv2.bitwise_and(img, img, mask=mask)
-    saveImg = img1_bg.copy()
+    manga = cv2.bitwise_and(bcg, bcg, mask=mask_inv)
+    saveImg = cv2.add(manga, img1_bg)
 
+    # 人像背景抽離
+    gogogo = cv2.resize(gogo, (cols, rows), interpolation=cv2.INTER_CUBIC)
+    gogogo = cv2.cvtColor(gogogo, cv2.COLOR_BGR2GRAY)
+    ret, mask = cv2.threshold(gogogo, 50, 255, cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+    filemask = cv2.bitwise_not(filename[1])
+    maskis = cv2.bitwise_xor(filename[1],mask_inv)
+    gomask = cv2.bitwise_and(filemask,mask_inv)
+    regomask = cv2.bitwise_not(gomask)
+    goBG = cv2.rectangle(saveImg.copy(), (0, 0), (cols, rows), (100, 100, 100), -1) #顏色調整
+
+    img = saveImg[0:rows, 0:cols]
+    bcg = goBG[0:rows, 0:cols]
+
+    onlytext = cv2.bitwise_and(bcg, bcg, mask=gomask)
+    onlyhuman = cv2.bitwise_and(img, img, mask=regomask)
+    composite = cv2.add(onlytext, onlyhuman)
+    
     #防止人臉覆蓋
     for (x, y, w, h) in faces:
         i += 1
@@ -51,8 +71,9 @@ def detect(filename):
         ret, mask = cv2.threshold(new, 50, 255, cv2.THRESH_BINARY)
         mask_inv = cv2.bitwise_not(mask)
         frows, fcols, fchannels = oimage.shape
+        
         img1 = oimage[0:frows, 0:fcols]
-        img2 = img1_bg[0:frows, 0:fcols]
+        img2 = composite[0:frows, 0:fcols]
 
         img1_bg = cv2.bitwise_and(img1, img1, mask=mask)
         img2_fg = cv2.bitwise_and(img2, img2, mask=mask_inv)

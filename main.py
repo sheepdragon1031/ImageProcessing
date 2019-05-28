@@ -14,7 +14,7 @@ template = templateEnv.get_template("index.html")
 
 
 def main():
-    detect(profile(TEST_IMAGE['10']))
+    detect(profile(TEST_IMAGE['2']))
 
     html = template.render(images=IMAGES)
 

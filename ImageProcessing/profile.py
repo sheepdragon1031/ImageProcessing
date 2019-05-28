@@ -55,7 +55,8 @@ def profile(filename):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
     closed = cv2.morphologyEx(closed, cv2.MORPH_CLOSE, kernel)
     # mix = cv2.addWeighted(thresh,0.5,closed,0.5,0)
-    MixMask = fillHole(closed)
+    # MixMask = fillHole(closed)
+    (_, MixMask) = cv2.threshold(closed, 30, 255, cv2.THRESH_BINARY)
 
     images = image.copy()
     rows, cols, channels = images.shape

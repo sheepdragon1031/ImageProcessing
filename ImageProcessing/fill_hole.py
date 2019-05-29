@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 
-def fillHole(im_in):
+def fill_hole(im_in):
     im_floodfill = im_in.copy()
     # Mask used to flood filling.
     # Notice the size needs to be 2 pixels than the image.

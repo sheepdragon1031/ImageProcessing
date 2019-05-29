@@ -1,12 +1,10 @@
 """
 影像處理主體
 """
-from ImageProcessing.detect import detect
-from ImageProcessing.profile import profile
-from ImageProcessing.fillHole import fillHole
-from ImageProcessing.files import MATERIAL, CASCADE_FILE, TEST_IMAGE, IMAGES
+from .handle import handle
+from .files import get_test_image
 
 __all__ = [
-    'detect', 'profile', 'fillHole', 'MATERIAL', 'CASCADE_FILE', 'TEST_IMAGE',
-    'IMAGES'
+    'handle',
+    'get_test_image',
 ]

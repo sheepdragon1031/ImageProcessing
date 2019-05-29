@@ -1,9 +1,8 @@
-from ImageProcessing import detect, profile, TEST_IMAGE, IMAGES
+from ImageProcessing import handle, get_test_image
 
 from jinja2 import Environment, FileSystemLoader
 
-import tornado.ioloop
-import tornado.web
+from tornado import ioloop, web
 
 # 設定網頁伺服器的埠口
 PORT = 8000
@@ -14,21 +13,20 @@ template = templateEnv.get_template("index.html")
 
 
 def main():
-    detect(profile(TEST_IMAGE['2']))
-
-    html = template.render(images=IMAGES)
+    html = template.render(images=handle(get_test_image('19')))
 
     # 頁面處理
-    class Handler(tornado.web.RequestHandler):
+    class Handler(web.RequestHandler):
         def get(self):
             self.write(html)
 
     # 分配Handler
-    tornado.web.Application([
+    web.Application([
         (r"/", Handler),
     ]).listen(PORT)
 
-    tornado.ioloop.IOLoop.instance().start()
+    print('Server start on:', 'localhost:' + str(PORT))
+    ioloop.IOLoop.instance().start()
 
 
 if __name__ == '__main__':

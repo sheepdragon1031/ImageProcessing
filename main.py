@@ -13,7 +13,7 @@ template = templateEnv.get_template("index.html")
 
 
 def main():
-    html = template.render(images=handle(get_test_image('21')))
+    html = template.render(images=handle(get_test_image('15')))
 
     # 頁面處理
     class Handler(web.RequestHandler):

@@ -8,6 +8,10 @@ from ImageProcessing.files import MATERIAL, CASCADE_FILE, im_show
 EFFECT_BOX_COLOR = (20, 20, 20)
 EFFECT_TEXT_COLOR = (100, 100, 100)
 
+# Kmeans常數
+K = 30
+MAX_ITER = 30
+
 
 # 改變圖片大小與取得二值圖
 def resized_image_and_binary(fileName, size):
@@ -43,6 +47,17 @@ def draw(image, mask):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
 
+    # Kmeans
+    Z = image.reshape((-1, 3))
+    Z = np.float32(Z)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, MAX_ITER,
+                1.0)
+    ret, label, center = cv2.kmeans(Z, K, None, criteria, 10,
+                                    cv2.KMEANS_RANDOM_CENTERS)
+    center = np.uint8(center)
+    res = center[label.flatten()]
+    image = res.reshape((image.shape))
+
     # 背景模糊
     blur = cv2.GaussianBlur(image.copy(), (21, 21), 0)
     output = image_merge(blur, image, mask)
@@ -67,8 +82,8 @@ def draw(image, mask):
     if np.any(faces):
         # 有抓到人臉的狀況
         for (x, y, w, h) in faces:
-            output = cv2.rectangle(output, (x, y), (x + w, y + h), (255, 0, 0),
-                                   2)
+            # output = cv2.rectangle(output, (x, y), (x + w, y + h), (255, 0, 0),
+            #                        2)
             output[y:y + h, x:x + w] = image[y:y + h, x:x + w]
     else:
         # 沒抓到人臉的狀況

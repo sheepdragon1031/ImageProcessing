@@ -3,7 +3,7 @@
 """
 import cv2, numpy as np
 from ImageProcessing.files import MATERIAL, CASCADE_FILE, im_show
-
+import math
 # 特效顏色
 EFFECT_BOX_COLOR = (20, 20, 20)
 EFFECT_TEXT_COLOR = (100, 100, 100)
@@ -40,6 +40,7 @@ def image_merge(fg, bg, mask, color=None):
 
 
 def draw(image, mask):
+    Omage = image.copy()
     rows, cols, _ = image.shape
     size = (cols, rows)
 
@@ -85,6 +86,31 @@ def draw(image, mask):
             # output = cv2.rectangle(output, (x, y), (x + w, y + h), (255, 0, 0),
             #                        2)
             output[y:y + h, x:x + w] = image[y:y + h, x:x + w]
+            
+            
+            # 全臉
+            # output[y:y + h, x:x + w] = cv2.addWeighted(image[y:y + h, x:x + w], 0.5, Omage[y:y + h, x:x + w], 0.5, 0)
+            # output = cv2.rectangle(output, (x, y), (x + w, y + h), (255, 0, 0), 1)
+
+            # 鼻子
+            ys = y + int(h * 0.4)
+            xs = x + int(w / 3)
+            hs = int(h * 0.3)
+            ws = int(w / 3)
+            output[ys:ys + hs, xs:xs + ws] = cv2.addWeighted(image[ys:ys + hs, xs:xs + ws], 0.6, Omage[ys:ys + hs, xs:xs + ws], 0.4, 0)
+            # output = cv2.rectangle(output, (xs , ys ), (xs + ws , ys + hs), (255, 0, 0), 1)
+
+            # 嘴巴
+            ys = y + int(h * 0.675)
+            xs = x + int(w * 0.25)
+            hs = int(h * 0.25)
+            ws = int(w * 0.5)
+            output[ys:ys + hs, xs:xs + ws] = cv2.addWeighted(image[ys:ys + hs, xs:xs + ws], 0.5, Omage[ys:ys + hs, xs:xs + ws], 0.5, 0)
+            # output = cv2.rectangle(output, (xs , ys ), (xs + ws , ys + hs), (255, 0, 0), 1)
+
+           
+
+
     else:
         # 沒抓到人臉的狀況
         output = image_merge(output, image, mask)

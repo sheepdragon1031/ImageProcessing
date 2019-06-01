@@ -30,13 +30,27 @@ IMAGES = []
 
 
 # 測試圖片
-def get_test_image(fileName, ext='jpg'):
-    return join(BASE_DIR, 'TestImage', '%s.%s' % (fileName, ext))
+def get_image(fileName, ext='jpg'):
+    return join(BASE_DIR, 'images/', '%s.%s' % (fileName, ext))
 
 
-# 增加要顯示的圖片
-def im_show(cv_image):
+# 轉成base64編碼
+def to_base64(cv_image):
     base64_str = cv2.imencode('.jpg', cv_image)[1].tostring()
     base64_str = base64.b64encode(base64_str).decode('utf-8')
 
+    return base64_str
+
+
+# 增加要顯示的圖片
+def im_add(cv_image):
+    base64_str = to_base64(cv_image)
     IMAGES.append(base64_str)
+
+
+# 輸出IMAGES
+def im_show():
+    output = IMAGES.copy()
+    IMAGES.clear()
+
+    return output

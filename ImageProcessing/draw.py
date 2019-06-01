@@ -2,7 +2,7 @@
 找人臉加效果框
 """
 import cv2, numpy as np
-from ImageProcessing.files import MATERIAL, CASCADE_FILE, im_show
+from ImageProcessing.files import MATERIAL, CASCADE_FILE, im_add, to_base64
 
 # 特效顏色
 EFFECT_BOX_COLOR = (20, 20, 20)
@@ -86,7 +86,9 @@ def draw(image, mask):
     if np.any(faces):
         # 有抓到人臉的狀況
         for (x, y, w, h) in faces:
-            # face_detect = cv2.rectangle(original, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # face_detect = cv2.rectangle(original, (x, y), (x + w, y + h),
+            #                             (255, 0, 0), 2)
+            # im_add(face_detect)
             output[y:y + h, x:x + w] = image[y:y + h, x:x + w]
 
             # Kmeans結果調色
@@ -118,4 +120,5 @@ def draw(image, mask):
         # 沒抓到人臉的狀況
         output = image_merge(output, image, mask)
 
-    im_show(output)
+    # im_add(output)
+    return to_base64(output)

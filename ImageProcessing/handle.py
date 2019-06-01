@@ -4,7 +4,7 @@
 import imghdr, cv2, base64
 from .draw import draw
 from .matting import matting
-from .files import MATERIAL, CASCADE_FILE, IMAGES
+from .files import MATERIAL, CASCADE_FILE
 
 
 def handle(fileName):
@@ -15,6 +15,6 @@ def handle(fileName):
 
     # 拆出前景背景
     mask = matting(image)
-    draw(image, mask)
+    output = draw(image, mask)
 
-    return IMAGES
+    return output

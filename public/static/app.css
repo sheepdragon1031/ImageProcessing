@@ -1,0 +1,157 @@
+[v-cloak] {
+    display: none;
+}
+
+.modal .carousel-control-prev,
+.modal .carousel-control-next {
+    top: auto;
+    bottom: 1rem;
+    padding: 2px 0;
+    z-index: 15;
+}
+
+.modal#ImageModal button.close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+}
+
+.modal#ImageModal .carousel::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3.25rem;
+    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
+    z-index: 14;
+}
+.modal#ImageModal .carousel-item {
+    overflow: hidden;
+}
+.modal#ImageModal .carousel-item .processing {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal#ImageModal .carousel-item .processing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.card-columns .card {
+    cursor: pointer;
+}
+
+.upload-box {
+    position: relative;
+    padding: 100px 20px;
+    pointer-events: auto;
+    z-index: 5000;
+    font-size: 1.25rem;
+    text-align: center;
+    background-color: rgba(200 ,218 ,223 , 0.95);
+    outline: 2px dashed #92b0b3;
+    outline-offset: -10px;
+    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+}
+.upload-box.is-dragover {
+    outline-color: #c8dadf;
+    outline-offset: -20px;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+.upload-box .box__icon {
+    display: block;
+    width: 100%;
+    height: 80px;
+    fill: #92b0b3;
+    margin-bottom: 40px;
+}
+.upload-box .box__file {
+    display: none;
+}
+.upload-box .box__success > span,
+.upload-box .box__error > span,
+.upload-box .box__file + label {
+    max-width: 80%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+}
+.upload-box .box__success > span:hover strong,
+.upload-box .box__error > span:hover strong,
+.upload-box .box__file + label:hover strong {
+    color: #39bfb3;
+}
+.upload-box .box__dragndrop {
+    display: inline;
+}
+.upload-box .box__uploading,
+.upload-box .box__success,
+.upload-box .box__error {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+}
+.upload-box.is-uploading .box__input,
+.upload-box.is-success .box__input,
+.upload-box.is-error .box__input {
+    visibility: hidden;
+}
+.upload-box.is-uploading .box__uploading,
+.upload-box.is-success .box__success,
+.upload-box.is-error .box__error {
+    display: block;
+}
+.upload-box.is-success .box__success {
+    -webkit-animation: appear-from-inside .25s ease-in-out;
+    animation: appear-from-inside .25s ease-in-out;
+}
+@-webkit-keyframes appear-from-inside
+{
+    from	{ -webkit-transform: translateY( -50% ) scale( 0 ); }
+    75%		{ -webkit-transform: translateY( -50% ) scale( 1.1 ); }
+    to		{ -webkit-transform: translateY( -50% ) scale( 1 ); }
+}
+@keyframes appear-from-inside
+{
+    from	{ transform: translateY( -50% ) scale( 0 ); }
+    75%		{ transform: translateY( -50% ) scale( 1.1 ); }
+    to		{ transform: translateY( -50% ) scale( 1 ); }
+}
+
+@media (min-width: 576px) {
+    .card-columns {
+        column-count: 2;
+    }
+}
+
+@media (min-width: 768px) {
+    .card-columns {
+        column-count: 3;
+    }
+}
+
+@media (min-width: 1024px) {
+    .card-columns {
+        column-count: 4;
+    }
+}

@@ -2,9 +2,9 @@
 影像處理主體
 """
 from .handle import handle
-from .files import get_test_image
+from .files import im_show
 
 __all__ = [
     'handle',
-    'get_test_image',
+    'im_show',
 ]

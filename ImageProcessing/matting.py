@@ -2,8 +2,7 @@
 拆出前景背景
 """
 import cv2, numpy as np
-from ImageProcessing.alpha_matting import closed_form, solve_fg_bg
-from ImageProcessing.files import CASCADE_FILE, get_test_image, im_show
+from ImageProcessing.files import CASCADE_FILE, im_add
 
 BLUR = 21
 CANNY_THRESH_1 = 10
@@ -40,13 +39,5 @@ def matting(image):
     # 遮罩修復
     mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
     mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
-
-    # # Closed Form Matting
-    # trimap = cv2.imread(get_test_image('4-trimap'))
-    # alpha = closed_form.with_scribbles(image / 255.0, trimap / 255.0)
-    # foreground, background = solve_fg_bg(image, alpha)
-    # im_show(alpha * 255.0)
-    # im_show(foreground)
-    # im_show(background)
 
     return mask.astype('uint8')
